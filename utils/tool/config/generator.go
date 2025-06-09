@@ -21,7 +21,7 @@ func NewConfigGenerator(outputDir string) *ConfigGenerator {
 		outputDir = DefaultOutputDir
 	}
 	return &ConfigGenerator{
-		Generator: generator.NewGenerator(outputDir, nil),
+		Generator: generator.NewGenerator(outputDir),
 	}
 }
 
@@ -56,5 +56,5 @@ func (g *ConfigGenerator) GenerateConfig() error {
 	}
 
 	// Write configuration file
-	return g.Generator.WriteConfigYAML("config", &cfg)
+	return g.Generator.WriteYAML("config", &cfg)
 }
