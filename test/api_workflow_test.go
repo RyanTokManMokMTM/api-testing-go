@@ -128,7 +128,7 @@ func loadAllTestAnd() []*config.APITesting {
 		}
 	}
 
-	workflowsPath := path.Join(root, "workflow")
+	workflowsPath := path.Join(root, "workflows")
 	files, err := os.ReadDir(workflowsPath)
 	if err != nil {
 		panic(err)
@@ -143,7 +143,7 @@ func loadAllTestAnd() []*config.APITesting {
 			continue
 		}
 
-		path := path.Join(root, f.Name())
+		path := path.Join(workflowsPath, f.Name())
 		apiCfg, loadYamlErr := loadConfig[config.APITesting](path)
 		if loadYamlErr != nil {
 			panic(loadYamlErr)
