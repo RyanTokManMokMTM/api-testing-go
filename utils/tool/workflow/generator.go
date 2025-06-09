@@ -3,8 +3,10 @@ package workflow
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 
 	"github.com/RyanTokManMokMTM/api-testing-go/config"
+	"github.com/RyanTokManMokMTM/api-testing-go/config/types"
 	"github.com/RyanTokManMokMTM/api-testing-go/utils/tool/generator"
 )
 
@@ -22,6 +24,7 @@ type TestStep struct {
 	URI            string
 	Headers        map[string]string
 	Body           interface{}
+	Query          map[string]string
 	Variables      []string
 	FromResponses  []FromResponse
 	ExpectedCode   string
@@ -38,10 +41,11 @@ type FromResponse struct {
 
 // ResponseCheck represents a response check
 type ResponseCheck struct {
-	Type  string
-	Field string
-	Value interface{}
-	Regex string
+	CheckType string
+	Field     string
+	Type      types.FieldType
+	Value     interface{}
+	Regex     string
 }
 
 // Generator is a workflow generator used to generate workflow-related test cases
@@ -64,68 +68,9 @@ func (g *WorkflowGenerator) GenerateAllWorkflows() error {
 		opts     []GenerateOption
 	}{
 		{
-			name:     "subscription_workflow",
-			generate: g.GenerateSubscriptionWorkflow,
-			opts: []GenerateOption{
-				WithHost("{{.API_HOST}}"),
-				WithNetworkEnable(true),
-				WithGlobalHook(config.Hook{
-					After: config.HookActions{
-						Workflows: []config.Workflow{
-							{
-								Step: "cleanup_subscription",
-								Request: config.Request{
-									Method: "DELETE",
-									URI:    "/api/merchants/{{.mid}}/subscriptions/{{.subscription_id}}",
-								},
-								ExpectResponse: config.Response{
-									Code:       "SUCCESS",
-									StatusCode: 200,
-								},
-							},
-						},
-					},
-				}),
-			},
-		},
-		{
-			name:     "order_workflow",
-			generate: g.GenerateOrderWorkflow,
-			opts: []GenerateOption{
-				WithHost("{{.API_HOST}}"),
-				WithNetworkEnable(true),
-				WithGlobalHook(config.Hook{
-					After: config.HookActions{
-						Workflows: []config.Workflow{
-							{
-								Step: "cleanup_order",
-								Request: config.Request{
-									Method: "DELETE",
-									URI:    "/api/merchants/{{.mid}}/orders/{{.order_id}}",
-								},
-								ExpectResponse: config.Response{
-									Code:       "SUCCESS",
-									StatusCode: 200,
-								},
-							},
-						},
-					},
-				}),
-			},
-		},
-		{
-			name:     "coupon_workflow",
-			generate: g.GenerateCouponWorkflow,
-			opts: []GenerateOption{
-				WithHost("localhost"),
-				WithNetworkEnable(false),
-			},
-		},
-		{
-			name:     "general_workflow",
+			name:     "example_workflow",
 			generate: g.GenerateGeneralWorkflow,
 			opts: []GenerateOption{
-				WithHost("localhost"),
 				WithNetworkEnable(false),
 			},
 		},
@@ -228,6 +173,7 @@ func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
 			Headers: convertHeadersToString(step.Headers),
 			Body:    convertBodyToString(step.Body),
 			Vars:    convertVariables(step.Variables),
+			Query:   convertQueryToString(step.Query),
 		},
 		ExpectResponse: config.Response{
 			Code:       step.ExpectedCode,
@@ -255,6 +201,7 @@ func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
 			workflow.ExpectResponse.Body.Equals = append(workflow.ExpectResponse.Body.Equals, config.EqualsCheck{
 				Field: check.Field,
 				Value: check.Value,
+				Type:  check.Type,
 			})
 		case "matches":
 			workflow.ExpectResponse.Body.Matches = append(workflow.ExpectResponse.Body.Matches, config.MatchesCheck{
@@ -303,8 +250,19 @@ func convertBodyToString(body interface{}) string {
 	if body == nil {
 		return ""
 	}
-	data, _ := json.Marshal(body)
-	return string(data)
+
+	// 序列化為 JSON
+	data, err := json.Marshal(body)
+	if err != nil {
+		return ""
+	}
+
+	// 處理序列化後的字符串，去掉模板變量的引號
+	result := string(data)
+	re := regexp.MustCompile(`"@(\{\{\.\w+\}\})"`)
+	result = re.ReplaceAllString(result, "$1")
+
+	return result
 }
 
 // convertVariables converts variable list to Var struct list
@@ -319,182 +277,13 @@ func convertVariables(vars []string) []config.Var {
 	return result
 }
 
-//
-
-// GenerateSubscriptionWorkflow generates subscription workflow test cases
-func (g *WorkflowGenerator) GenerateSubscriptionWorkflow() []TestCase {
-	return []TestCase{
-		{
-			Name:        "subscription_workflow",
-			Description: "Subscription API workflow test",
-			Steps: []TestStep{
-				{
-					Name:   "create_subscribable_entity_plan",
-					Method: "POST",
-					URI:    "/api/subscribables_entities",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					Variables: []string{
-						"legacy_id",
-						"config_legacy_id",
-					},
-					Body: map[string]interface{}{
-						"legacy_id": "{{.legacy_id}}",
-						"type":      "plan",
-						"key":       "test_plan",
-						"description_translations": map[string]string{
-							"en": "test plan",
-						},
-						"configurations": []map[string]interface{}{
-							{
-								"legacy_id": "{{.config_legacy_id}}",
-								"name_translations": map[string]string{
-									"en": "test",
-								},
-								"key":           "test_month",
-								"is_trial":      false,
-								"recurring_day": 0,
-								"duration":      1,
-								"duration_unit": "month",
-								"charges": []map[string]interface{}{
-									{
-										"price": map[string]interface{}{
-											"cents":        10,
-											"currency_iso": "HKD",
-										},
-										"one_off": true,
-										"title":   "subscription_fee",
-									},
-								},
-							},
-						},
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							Type:  "present",
-							Field: "data.id",
-						},
-					},
-				},
-				{
-					Name:   "create_subscription",
-					Method: "POST",
-					URI:    "/api/merchants/{{.mid}}/subscriptions",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					Variables: []string{
-						"mid",
-					},
-					FromResponses: []FromResponse{
-						{
-							Step:      "create_subscribable_entity_plan",
-							Name:      "subscribable_entity_id",
-							FromField: "data.id",
-						},
-					},
-					Body: map[string]interface{}{
-						"subscribable_entity_id": "{{.subscribable_entity_id}}",
-						"start_at":               "{{.next_day}}",
-						"end_at":                 "{{.next_month}}",
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							Type:  "present",
-							Field: "data.id",
-						},
-					},
-				},
-			},
-		},
+// convertQueryToString converts query map to string
+func convertQueryToString(query map[string]string) string {
+	if len(query) == 0 {
+		return ""
 	}
-}
-
-// GenerateOrderWorkflow generates order workflow test cases
-func (g *WorkflowGenerator) GenerateOrderWorkflow() []TestCase {
-	return []TestCase{
-		{
-			Name:        "order_workflow",
-			Description: "Order API workflow test",
-			Steps: []TestStep{
-				{
-					Name:   "create_order",
-					Method: "POST",
-					URI:    "/api/merchants/{{.mid}}/orders",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					Variables: []string{
-						"mid",
-					},
-					Body: map[string]interface{}{
-						"items": []map[string]interface{}{
-							{
-								"name":     "Test Item",
-								"quantity": 1,
-								"price": map[string]interface{}{
-									"cents":        100,
-									"currency_iso": "HKD",
-								},
-							},
-						},
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							Type:  "present",
-							Field: "data.id",
-						},
-					},
-				},
-			},
-		},
-	}
-}
-
-// GenerateCouponWorkflow generates coupon workflow test cases
-func (g *WorkflowGenerator) GenerateCouponWorkflow() []TestCase {
-	return []TestCase{
-		{
-			Name:        "coupon_workflow",
-			Description: "Coupon API workflow test",
-			Steps: []TestStep{
-				{
-					Name:   "create_coupon",
-					Method: "POST",
-					URI:    "/api/merchants/{{.mid}}/coupons",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					Variables: []string{
-						"mid",
-					},
-					Body: map[string]interface{}{
-						"code":        "TEST_COUPON",
-						"type":        "percentage",
-						"value":       10,
-						"start_at":    "{{.next_day}}",
-						"end_at":      "{{.next_month}}",
-						"usage_limit": 100,
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							Type:  "present",
-							Field: "data.id",
-						},
-					},
-				},
-			},
-		},
-	}
+	data, _ := json.Marshal(query)
+	return string(data)
 }
 
 // GenerateGeneralWorkflow generates general workflow test cases
@@ -515,8 +304,8 @@ func (g *WorkflowGenerator) GenerateGeneralWorkflow() []TestCase {
 					ExpectedStatus: 200,
 					ResponseChecks: []ResponseCheck{
 						{
-							Type:  "present",
-							Field: "status",
+							CheckType: "present",
+							Field:     "status",
 						},
 					},
 				},
