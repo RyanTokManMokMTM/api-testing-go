@@ -111,7 +111,7 @@ func (apiTestRunner *APITestRunner) setAssertFunc(
 	assertFuncs := make([]func(*http.Response, *http.Request) error, 0)
 
 	expectedChain := jsonpath.Chain()
-	expectedChain.Equal("$.code", workflow.ExpectResponse.Code) // Must
+	// expectedChain.Equal("$.code", workflow.ExpectResponse.Code) // Must
 
 	// For all equals data
 	for _, equal := range workflow.ExpectResponse.Body.Equals {

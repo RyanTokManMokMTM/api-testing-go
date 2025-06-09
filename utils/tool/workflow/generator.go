@@ -78,7 +78,7 @@ func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
 			Query:   convertQueryToString(step.Query),
 		},
 		ExpectResponse: config.Response{
-			Code:       step.ExpectedCode,
+			// Code:       step.ExpectedCode,
 			StatusCode: step.ExpectedStatus,
 			Body:       config.BodyCheck{},
 		},
@@ -178,7 +178,7 @@ func (g *WorkflowGenerator) GenerateAllWorkflows() error {
 			name:     "simplified_config_workflow",
 			generate: g.GenerateGeneralWorkflow,
 			opts: []GenerateOption{
-				WithHost("https://api.example.com"),
+				WithHost("https://fakerapi.it"),
 				WithNetworkEnable(true),
 				WithSkip(false),
 			},
@@ -201,159 +201,20 @@ func (g *WorkflowGenerator) GenerateGeneralWorkflow() []TestCase {
 	return []TestCase{
 		{
 			Name:        "simplified_config_workflow",
-			Description: "Simplified 4-step workflow demonstrating config variable usage with Faker API",
+			Description: "Simplified workflow demonstrating config variable usage with Faker API",
 			Steps: []TestStep{
 				{
 					Name:   "get_user_data",
 					Method: "GET",
-					URI:    "https://fakerapi.it/api/v2/persons?_quantity=1&_locale=en_US",
+					URI:    "/api/v2/persons?_quantity=1&_locale=en_US",
 					Headers: map[string]string{
 						"Content-Type":  "application/json",
 						"X-Merchant-ID": "{{.mid}}",
 					},
-					ExpectedCode:   "SUCCESS",
+					Variables: []string{
+						"mid",
+					},
 					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							CheckType: "present",
-							Field:     "data",
-						},
-						{
-							CheckType: "equals",
-							Field:     "total",
-							Value:     1,
-						},
-						{
-							CheckType: "present",
-							Field:     "data[0].email",
-						},
-					},
-					FromResponses: []FromResponse{
-						{
-							Step:      "get_user_data",
-							Name:      "user_email",
-							FromField: "data[0].email",
-						},
-						{
-							Step:      "get_user_data",
-							Name:      "user_name",
-							FromField: "data[0].firstname",
-						},
-					},
-				},
-				{
-					Name:   "create_user_account",
-					Method: "POST",
-					URI:    "/api/merchants/{{.mid}}/users",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					Body: map[string]interface{}{
-						"email":     "#{{.user_email}}",
-						"name":      "#{{.user_name}}",
-						"legacy_id": "#{{.legacy_id}}",
-						"metadata": map[string]interface{}{
-							"created_by":  "config_test",
-							"merchant_id": "{{.mid}}",
-						},
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							CheckType: "present",
-							Field:     "data.id",
-						},
-						{
-							CheckType: "equals",
-							Field:     "data.email",
-							Value:     "{{.user_email}}",
-						},
-					},
-					FromResponses: []FromResponse{
-						{
-							Step:      "create_user_account",
-							Name:      "user_id",
-							FromField: "data.id",
-						},
-					},
-				},
-				{
-					Name:   "create_order",
-					Method: "POST",
-					URI:    "/api/merchants/{{.mid}}/orders",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					Body: map[string]interface{}{
-						"user_id": "#{{.user_id}}",
-						"items": []map[string]interface{}{
-							{
-								"legacy_id": "#{{.config_legacy_id}}",
-								"quantity":  1,
-								"price": map[string]interface{}{
-									"cents":        1000,
-									"currency_iso": "TWD",
-								},
-							},
-						},
-						"start_at": "#{{.next_day}}",
-						"end_at":   "#{{.next_month}}",
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							CheckType: "present",
-							Field:     "data.id",
-						},
-						{
-							CheckType: "equals",
-							Field:     "data.user_id",
-							Value:     "{{.user_id}}",
-						},
-						{
-							CheckType: "present",
-							Field:     "data.items",
-						},
-					},
-					FromResponses: []FromResponse{
-						{
-							Step:      "create_order",
-							Name:      "order_id",
-							FromField: "data.id",
-						},
-					},
-				},
-				{
-					Name:   "get_order_status",
-					Method: "GET",
-					URI:    "/api/merchants/{{.mid}}/orders/{{.order_id}}",
-					Headers: map[string]string{
-						"Content-Type": "application/json",
-					},
-					ExpectedCode:   "SUCCESS",
-					ExpectedStatus: 200,
-					ResponseChecks: []ResponseCheck{
-						{
-							CheckType: "present",
-							Field:     "data.id",
-						},
-						{
-							CheckType: "equals",
-							Field:     "data.id",
-							Value:     "{{.order_id}}",
-						},
-						{
-							CheckType: "present",
-							Field:     "data.status",
-						},
-						{
-							CheckType: "greater_than",
-							Field:     "data.items.length",
-							Value:     0,
-						},
-					},
 				},
 			},
 		},

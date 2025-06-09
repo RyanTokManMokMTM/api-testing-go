@@ -62,15 +62,15 @@ type TestCase struct {
 
 // TestStep represents a test step
 type TestStep struct {
-	Name           string
-	Method         string
-	URI            string
-	Headers        map[string]string
-	Body           interface{}
-	Query          map[string]string
-	Variables      []string
-	FromResponses  []FromResponse
-	ExpectedCode   string
+	Name          string
+	Method        string
+	URI           string
+	Headers       map[string]string
+	Body          interface{}
+	Query         map[string]string
+	Variables     []string
+	FromResponses []FromResponse
+	// ExpectedCode   string
 	ExpectedStatus int
 	ResponseChecks []ResponseCheck
 }
