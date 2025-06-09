@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/RyanTokManMokMTM/api-testing-go/config/types"
 )
@@ -18,7 +17,6 @@ type ConfigValue struct {
 	Value   any             `yaml:"value,omitempty"`
 	Command string          `yaml:"command,omitempty"`
 	Type    types.FieldType `yaml:"type,omitempty"`
-	EnvVar  string          `yaml:"env_var,omitempty"` // Environment variable to override this value
 }
 
 // APITesting represents a complete API test suite
@@ -159,16 +157,10 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// GetValue retrieves a configuration value, checking environment variables first
+// GetValue retrieves a configuration value
 func (c *Config) GetValue(name string) (any, error) {
 	for _, cv := range c.ConfigValues {
 		if cv.Name == name {
-			// Check environment variable override
-			if cv.EnvVar != "" {
-				if envVal := os.Getenv(cv.EnvVar); envVal != "" {
-					return envVal, nil
-				}
-			}
 			return cv.Value, nil
 		}
 	}

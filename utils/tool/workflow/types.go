@@ -1,20 +1,20 @@
 package workflow
 
-// WorkflowType 定義工作流類型
+// WorkflowType defines the type of workflow
 type WorkflowType string
 
 const (
-	// TypeCoupon 優惠券工作流
+	// TypeCoupon represents a coupon workflow
 	TypeCoupon WorkflowType = "coupon_workflow"
-	// TypeSubscription 訂閱工作流
+	// TypeSubscription represents a subscription workflow
 	TypeSubscription WorkflowType = "subscription_workflow"
-	// TypeOrder 訂單工作流
+	// TypeOrder represents an order workflow
 	TypeOrder WorkflowType = "order_workflow"
-	// TypeGeneral 通用工作流
+	// TypeGeneral represents a general workflow
 	TypeGeneral WorkflowType = "general_workflow"
 )
 
-// GetWorkflowType 根據名稱獲取工作流類型
+// GetWorkflowType returns the workflow type based on the name
 func GetWorkflowType(name string) WorkflowType {
 	switch name {
 	case string(TypeCoupon):

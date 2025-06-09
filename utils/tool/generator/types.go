@@ -1,13 +1,13 @@
 package generator
 
-// TestCase 表示一個測試用例
+// TestCase represents a test case
 type TestCase struct {
 	Name        string
 	Description string
 	Steps       []TestStep
 }
 
-// TestStep 表示測試步驟
+// TestStep represents a test step
 type TestStep struct {
 	Name           string
 	Method         string
@@ -22,14 +22,14 @@ type TestStep struct {
 	ResponseChecks []ResponseCheck
 }
 
-// FromResponse 表示從響應中提取的變量
+// FromResponse represents a variable extracted from a response
 type FromResponse struct {
 	Step      string
 	Name      string
 	FromField string
 }
 
-// ResponseCheck 表示響應檢查
+// ResponseCheck represents a response check
 type ResponseCheck struct {
 	Type      string
 	Field     string

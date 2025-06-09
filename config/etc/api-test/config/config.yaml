@@ -1,17 +1,13 @@
 config:
-  - name: mid 
-    value: 6552f99b99821c568c0115cc
-
-  - name: legacy_id
-    value: SL101PRO6828965740321448017_SKU6828965740942204962
-
-  - name: config_legacy_id
-    value: SL101PRO4409746819723214928_SL101SKU4409746892519555080
-  
-  - name: next_day
-    command: echo $(date -d "tomorrow" +%s%3N)
-    type: number
-
-  - name: next_month
-    command: echo $(date -d "+1 month" +%s%3N)
-    type: number
+- name: mid
+  value: 6552f99b99821c568c0115cc
+- name: legacy_id
+  value: SL101PRO6828965740321448017_SKU6828965740942204962
+- name: config_legacy_id
+  value: SL101PRO4409746819723214928_SL101SKU4409746892519555080
+- name: next_day
+  command: echo $(date -d "tomorrow" +%s%3N)
+  type: number
+- name: next_month
+  command: echo $(date -d "+1 month" +%s%3N)
+  type: number

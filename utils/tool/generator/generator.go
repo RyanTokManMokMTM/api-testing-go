@@ -13,21 +13,21 @@ import (
 )
 
 const (
-	// DefaultOutputDir 是默認的輸出目錄
+	// DefaultOutputDir is the default output directory
 	DefaultOutputDir = "config/etc/api-test/workflows"
 )
 
-// APITestOptions 定義 API 測試的配置選項
+// APITestOptions defines API test configuration options
 type APITestOptions struct {
-	// 基本配置
+	// Basic configuration
 	Host          string
 	NetworkEnable bool
 	Skip          bool
-	// 全局鉤子配置
+	// Global hook configuration
 	GlobalHook *config.Hook
 }
 
-// DefaultAPITestOptions 返回默認的 API 測試配置
+// DefaultAPITestOptions returns the default API test configuration
 func DefaultAPITestOptions() *APITestOptions {
 	return &APITestOptions{
 		Host:          "localhost",
@@ -37,13 +37,13 @@ func DefaultAPITestOptions() *APITestOptions {
 	}
 }
 
-// Generator 基礎生成器，提供通用的生成功能
+// Generator is a base generator that provides common generation functionality
 type Generator struct {
 	outputDir string
-	options   *APITestOptions
+	Options   *APITestOptions
 }
 
-// NewGenerator 創建一個新的基礎生成器
+// NewGenerator creates a new base generator
 func NewGenerator(outputDir string, options *APITestOptions) *Generator {
 	if options == nil {
 		options = DefaultAPITestOptions()
@@ -53,32 +53,32 @@ func NewGenerator(outputDir string, options *APITestOptions) *Generator {
 	}
 	return &Generator{
 		outputDir: outputDir,
-		options:   options,
+		Options:   options,
 	}
 }
 
-// GenerateTestSuite 生成測試套件
+// GenerateTestSuite generates a test suite
 func (g *Generator) GenerateTestSuite(name string, testCases []TestCase, opts ...GenerateOption) error {
-	// 創建新的 APITest 配置，使用 Generator 的 options 作為默認值
+	// Create new APITest configuration using Generator's options as default values
 	apiTest := config.APITest{
 		Name:          name,
-		Host:          g.options.Host,
-		NetworkEnable: g.options.NetworkEnable,
-		Skip:          g.options.Skip,
-		// GlobalHook 默認為空
+		Host:          g.Options.Host,
+		NetworkEnable: g.Options.NetworkEnable,
+		Skip:          g.Options.Skip,
+		// GlobalHook defaults to empty
 	}
 
-	// 應用所有選項
+	// Apply all options
 	for _, opt := range opts {
 		opt(&apiTest)
 	}
 
-	// 構建完整的 APITesting 結構
+	// Build complete APITesting structure
 	suite := &config.APITesting{
 		APITest: apiTest,
 	}
 
-	// 生成測試場景
+	// Generate test scenarios
 	for _, tc := range testCases {
 		scenario := g.generateScenario(tc)
 		suite.APITest.Scenarios = append(suite.APITest.Scenarios, scenario)
@@ -87,38 +87,38 @@ func (g *Generator) GenerateTestSuite(name string, testCases []TestCase, opts ..
 	return g.writeYAML(name, suite)
 }
 
-// GenerateOption 定義生成選項的函數類型
+// GenerateOption defines a function type for generation options
 type GenerateOption func(*config.APITest)
 
-// WithHost 設置 Host 選項
+// WithHost sets the Host option
 func WithHost(host string) GenerateOption {
 	return func(apiTest *config.APITest) {
 		apiTest.Host = host
 	}
 }
 
-// WithNetworkEnable 設置 NetworkEnable 選項
+// WithNetworkEnable sets the NetworkEnable option
 func WithNetworkEnable(enable bool) GenerateOption {
 	return func(apiTest *config.APITest) {
 		apiTest.NetworkEnable = enable
 	}
 }
 
-// WithSkip 設置 Skip 選項
+// WithSkip sets the Skip option
 func WithSkip(skip bool) GenerateOption {
 	return func(apiTest *config.APITest) {
 		apiTest.Skip = skip
 	}
 }
 
-// WithGlobalHook 設置全局鉤子
+// WithGlobalHook sets the global hook
 func WithGlobalHook(hook config.Hook) GenerateOption {
 	return func(test *config.APITest) {
 		test.GlobalHook = hook
 	}
 }
 
-// generateScenario 生成測試場景
+// generateScenario generates a test scenario
 func (g *Generator) generateScenario(tc TestCase) config.Scenario {
 	scenario := config.Scenario{
 		Name:      tc.Name,
@@ -133,7 +133,7 @@ func (g *Generator) generateScenario(tc TestCase) config.Scenario {
 	return scenario
 }
 
-// generateWorkflow 生成工作流程
+// generateWorkflow generates a workflow
 func (g *Generator) generateWorkflow(step TestStep) config.Workflow {
 	workflow := config.Workflow{
 		Step: step.Name,
@@ -204,7 +204,7 @@ func (g *Generator) generateWorkflow(step TestStep) config.Workflow {
 	return workflow
 }
 
-// convertHeadersToString 將 headers map 轉換為 JSON 字符串
+// convertHeadersToString converts headers map to JSON string
 func convertHeadersToString(headers map[string]string) string {
 	if len(headers) == 0 {
 		return ""
@@ -213,7 +213,7 @@ func convertHeadersToString(headers map[string]string) string {
 	return string(data)
 }
 
-// convertBodyToString 將 body 轉換為 JSON 字符串
+// convertBodyToString converts body to JSON string
 func convertBodyToString(body interface{}) string {
 	if body == nil {
 		return ""
@@ -222,7 +222,7 @@ func convertBodyToString(body interface{}) string {
 	return string(data)
 }
 
-// convertVariables 將變量列表轉換為 Var 結構體列表
+// convertVariables converts variable list to Var struct list
 func convertVariables(vars []string) []config.Var {
 	if len(vars) == 0 {
 		return nil
@@ -234,23 +234,23 @@ func convertVariables(vars []string) []config.Var {
 	return result
 }
 
-// writeYAML 將測試套件寫入 YAML 文件
+// writeYAML writes test suite to YAML file
 func (g *Generator) writeYAML(name string, suite *config.APITesting) error {
-	// 確保輸出目錄存在
+	// Ensure output directory exists
 	if err := os.MkdirAll(g.outputDir, 0755); err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
-	// 生成文件名，使用小寫並將空格替換為下劃線
+	// Generate filename, convert to lowercase and replace spaces with underscores
 	filename := filepath.Join(g.outputDir, fmt.Sprintf("%s.yaml", strings.ToLower(strings.ReplaceAll(name, " ", "_"))))
 
-	// 將結構體轉換為 YAML
+	// Convert struct to YAML
 	data, err := yaml.Marshal(suite)
 	if err != nil {
 		return fmt.Errorf("failed to marshal YAML: %w", err)
 	}
 
-	// 寫入文件
+	// Write to file
 	if err := os.WriteFile(filename, data, 0644); err != nil {
 		return fmt.Errorf("failed to write YAML file: %w", err)
 	}
@@ -258,7 +258,31 @@ func (g *Generator) writeYAML(name string, suite *config.APITesting) error {
 	return nil
 }
 
-// GetOutputDir 獲取輸出目錄
+// GetOutputDir gets the output directory
 func (g *Generator) GetOutputDir() string {
 	return g.outputDir
+}
+
+// WriteConfigYAML writes configuration to YAML file
+func (g *Generator) WriteConfigYAML(name string, cfg *config.Config) error {
+	// Ensure output directory exists
+	if err := os.MkdirAll(g.outputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory: %v", err)
+	}
+
+	// Build output file path
+	outputPath := filepath.Join(g.outputDir, fmt.Sprintf("%s.yaml", name))
+
+	// Convert configuration to YAML
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config to YAML: %v", err)
+	}
+
+	// Write to file
+	if err := os.WriteFile(outputPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %v", err)
+	}
+
+	return nil
 }

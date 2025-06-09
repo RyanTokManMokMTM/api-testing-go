@@ -4,17 +4,23 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/RyanTokManMokMTM/api-testing-go/utils/tool/config"
 	"github.com/RyanTokManMokMTM/api-testing-go/utils/tool/generator"
 	"github.com/RyanTokManMokMTM/api-testing-go/utils/tool/workflow"
 )
 
 func main() {
-	// 創建工作流生成器
-	generator := workflow.NewWorkflowGenerator(generator.DefaultOutputDir)
+	// Generate configuration
+	fmt.Println("Generating config...")
+	configGenerator := config.NewConfigGenerator(config.DefaultOutputDir)
+	if err := configGenerator.GenerateConfig(); err != nil {
+		log.Fatalf("Failed to generate config: %v", err)
+	}
 
-	// 生成所有工作流
-	fmt.Println("Generating all workflow test cases...")
-	if err := generator.GenerateAllWorkflows(); err != nil {
+	// Generate workflow
+	fmt.Println("\nGenerating all workflow test cases...")
+	workflowGenerator := workflow.NewWorkflowGenerator(generator.DefaultOutputDir)
+	if err := workflowGenerator.GenerateAllWorkflows(); err != nil {
 		log.Fatalf("Failed to generate workflows: %v", err)
 	}
 

@@ -1,0 +1,23 @@
+api_test:
+  host: localhost
+  network_enable: false
+  name: coupon_workflow
+  skip: false
+  scenarios:
+  - skip: false
+    name: coupon_workflow
+    workflows:
+    - step: create_coupon
+      request:
+        vars:
+        - name: mid
+        method: POST
+        uri: /api/merchants/{{.mid}}/coupons
+        headers: '{"Content-Type":"application/json"}'
+        body: '{"code":"TEST_COUPON","end_at":"{{.next_month}}","start_at":"{{.next_day}}","type":"percentage","usage_limit":100,"value":10}'
+      expect_response:
+        code: SUCCESS
+        status_code: 200
+        body:
+          presents:
+          - field: data.id

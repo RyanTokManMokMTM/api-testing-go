@@ -76,28 +76,33 @@ go test ./test/...
 
 #### 添加新路由
 
-1. 在 `/utils/util/var.go` 中定義路由：
+1. Define routes in `/utils/util/var.go`:
 ```go
 const (
-    // 現有路由
-    SubscriptionPrefix = "/api"
-    SubscribablePrefix = "/api/subscribables_entities"
-    OrderPrefix = "/api/merchants/:mid/orders"
-
-    // 添加新路由
-    NewRoutePrefix = "/api/your/new/route"
+    // Add new route
+    ProductPrefix = "/api/products"
+    CategoryPrefix = "/api/categories"
+    UserPrefix = "/api/users"
 )
 ```
 
-2. 在 `/test/api_test_suite_test.go` 中註冊路由：
+2. Register routes in `/test/api_test_suite_test.go`:
 ```go
 func initRoute() {
-    // ... 現有代碼 ...
+    // ... existing code ...
     
-    // 註冊新路由
-    newService := new.NewService(uow, eventService)
-    newHandler := newhandler.NewHandler(newService)
-    newHandler.Router(app.Group(apiutil.NewRoutePrefix))
+    // Register new routes
+    productService := product.NewService(uow)
+    productHandler := producthandler.NewHandler(productService)
+    productHandler.Router(app.Group(apiutil.ProductPrefix))
+
+    categoryService := category.NewService(uow)
+    categoryHandler := categoryhandler.NewHandler(categoryService)
+    categoryHandler.Router(app.Group(apiutil.CategoryPrefix))
+
+    userService := user.NewService(uow)
+    userHandler := userhandler.NewHandler(userService)
+    userHandler.Router(app.Group(apiutil.UserPrefix))
 }
 ```
 

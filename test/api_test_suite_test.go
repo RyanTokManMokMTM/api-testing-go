@@ -9,12 +9,13 @@ import (
 )
 
 var _ = BeforeSuite(func() {
-	// parsing env
+	// TODO: Setup you testing environment
+	// exmaple: Connect to db and setup router etc.
 
 })
 
 var _ = AfterSuite(func() {
-
+	// TODO: remove all testing data...
 })
 
 func TestApiTest(t *testing.T) {

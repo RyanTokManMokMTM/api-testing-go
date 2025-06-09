@@ -7,19 +7,19 @@ import (
 	"github.com/RyanTokManMokMTM/api-testing-go/utils/tool/generator"
 )
 
-// Generator 工作流生成器，用於生成工作流相關的測試用例
+// Generator is a workflow generator used to generate workflow-related test cases
 type WorkflowGenerator struct {
 	*generator.Generator
 }
 
-// NewGenerator 創建一個新的工作流生成器
+// NewGenerator creates a new workflow generator
 func NewWorkflowGenerator(outputDir string) *WorkflowGenerator {
 	return &WorkflowGenerator{
-		Generator: generator.NewGenerator(outputDir, nil), // 使用默認配置
+		Generator: generator.NewGenerator(outputDir, nil), // Use default configuration
 	}
 }
 
-// GenerateAllWorkflows 生成所有工作流的測試用例
+// GenerateAllWorkflows generates all workflow test cases
 func (g *WorkflowGenerator) GenerateAllWorkflows() error {
 	workflows := []struct {
 		name     string
@@ -106,12 +106,12 @@ func (g *WorkflowGenerator) GenerateAllWorkflows() error {
 	return nil
 }
 
-// GenerateSubscriptionWorkflow 生成訂閱工作流測試用例
+// GenerateSubscriptionWorkflow generates subscription workflow test cases
 func (g *WorkflowGenerator) GenerateSubscriptionWorkflow() []generator.TestCase {
 	return []generator.TestCase{
 		{
 			Name:        "subscription_workflow",
-			Description: "訂閱 API 工作流測試",
+			Description: "Subscription API workflow test",
 			Steps: []generator.TestStep{
 				{
 					Name:   "create_subscribable_entity_plan",
@@ -200,12 +200,12 @@ func (g *WorkflowGenerator) GenerateSubscriptionWorkflow() []generator.TestCase 
 	}
 }
 
-// GenerateOrderWorkflow 生成訂單工作流測試用例
+// GenerateOrderWorkflow generates order workflow test cases
 func (g *WorkflowGenerator) GenerateOrderWorkflow() []generator.TestCase {
 	return []generator.TestCase{
 		{
 			Name:        "order_workflow",
-			Description: "訂單 API 工作流測試",
+			Description: "Order API workflow test",
 			Steps: []generator.TestStep{
 				{
 					Name:   "create_order",
@@ -243,12 +243,12 @@ func (g *WorkflowGenerator) GenerateOrderWorkflow() []generator.TestCase {
 	}
 }
 
-// GenerateCouponWorkflow 生成優惠券工作流測試用例
+// GenerateCouponWorkflow generates coupon workflow test cases
 func (g *WorkflowGenerator) GenerateCouponWorkflow() []generator.TestCase {
 	return []generator.TestCase{
 		{
 			Name:        "coupon_workflow",
-			Description: "優惠券 API 工作流測試",
+			Description: "Coupon API workflow test",
 			Steps: []generator.TestStep{
 				{
 					Name:   "create_coupon",
@@ -282,12 +282,12 @@ func (g *WorkflowGenerator) GenerateCouponWorkflow() []generator.TestCase {
 	}
 }
 
-// GenerateGeneralWorkflow 生成通用工作流測試用例
+// GenerateGeneralWorkflow generates general workflow test cases
 func (g *WorkflowGenerator) GenerateGeneralWorkflow() []generator.TestCase {
 	return []generator.TestCase{
 		{
 			Name:        "general_workflow",
-			Description: "通用 API 工作流測試",
+			Description: "General API workflow test",
 			Steps: []generator.TestStep{
 				{
 					Name:   "health_check",

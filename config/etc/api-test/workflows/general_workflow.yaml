@@ -1,0 +1,20 @@
+api_test:
+  host: localhost
+  network_enable: false
+  name: general_workflow
+  skip: false
+  scenarios:
+  - skip: false
+    name: general_workflow
+    workflows:
+    - step: health_check
+      request:
+        method: GET
+        uri: /health_check
+        headers: '{"Content-Type":"application/json"}'
+      expect_response:
+        code: SUCCESS
+        status_code: 200
+        body:
+          presents:
+          - field: status

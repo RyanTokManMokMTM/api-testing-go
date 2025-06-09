@@ -96,7 +96,6 @@ var _ = Describe("[ API TEST WORK FLOW ]", func() {
 									&respDataCahce)
 							})
 						}
-
 					}
 				},
 				createTestEntry(apiTestCfg),
@@ -129,11 +128,11 @@ func loadAllTestAnd() []*config.APITesting {
 		}
 	}
 
-	files, err := os.ReadDir(root)
+	workflowsPath := path.Join(root, "workflow")
+	files, err := os.ReadDir(workflowsPath)
 	if err != nil {
 		panic(err)
 	}
-
 	result := make([]*config.APITesting, 0)
 	for _, f := range files {
 		if f.IsDir() {
@@ -197,7 +196,6 @@ func createTestEntry(
 				i,
 			))
 	}
-
 	return tableEntries
 }
 
