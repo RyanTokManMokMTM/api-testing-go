@@ -232,7 +232,7 @@ func TestWriteYAML_UnmarshallableData(t *testing.T) {
 		}()
 
 		// This should cause a panic
-		gen.WriteYAML("test", make(chan int))
+		_ = gen.WriteYAML("test", make(chan int))
 	}()
 }
 

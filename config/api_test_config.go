@@ -1,3 +1,4 @@
+// Package config provides configuration structures and validation for API test workflows.
 package config
 
 import (
@@ -8,11 +9,11 @@ import (
 
 // Config represents the global configuration
 type Config struct {
-	ConfigValues []ConfigValue `yaml:"config" validate:"required"`
+	ConfigValues []Value `yaml:"config" validate:"required"`
 }
 
-// ConfigValue represents a single configuration value
-type ConfigValue struct {
+// Value represents a single configuration value
+type Value struct {
 	Name    string          `yaml:"name" validate:"required"`
 	Value   any             `yaml:"value,omitempty"`
 	Command string          `yaml:"command,omitempty"`

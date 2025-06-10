@@ -1,3 +1,4 @@
+// Package apitestrunner provides the main API test runner functionality for executing test workflows.
 package apitestrunner
 
 import (
@@ -13,16 +14,19 @@ import (
 	"github.com/steinfletcher/apitest"
 )
 
+// APITestRunner is the main test runner that executes API test workflows.
 type APITestRunner struct {
 	config *testCfg.APITest
 }
 
+// NewAPITestRuuner creates a new API test runner with the provided configuration.
 func NewAPITestRuuner(config *testCfg.APITest) *APITestRunner {
 	return &APITestRunner{
 		config: config,
 	}
 }
 
+// Start executes a single workflow step and returns the test result.
 func (apiTestRunner *APITestRunner) Start(
 	t ginkgo.GinkgoTInterface,
 	cfg *testCfg.APITest,

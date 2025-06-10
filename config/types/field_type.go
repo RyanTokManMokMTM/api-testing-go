@@ -1,3 +1,4 @@
+// Package types provides field type definitions and validation for API test configurations.
 package types
 
 // FieldType represents the type of a field in API responses

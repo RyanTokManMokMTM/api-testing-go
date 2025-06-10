@@ -1,3 +1,4 @@
+// Package generator provides utilities for generating YAML files and managing output directories for test workflows.
 package generator
 
 import (
@@ -19,7 +20,7 @@ type Generator struct {
 	outputDir string
 }
 
-// NewGenerator creates a new base generator
+// NewGenerator creates a new base generator with the specified output directory.
 func NewGenerator(outputDir string) *Generator {
 	if outputDir == "" {
 		outputDir = DefaultOutputDir
@@ -29,7 +30,7 @@ func NewGenerator(outputDir string) *Generator {
 	}
 }
 
-// WriteYAML writes data to YAML file
+// WriteYAML writes the provided data to a YAML file with the given name in the generator's output directory.
 func (g *Generator) WriteYAML(name string, data interface{}) error {
 	// Ensure output directory exists
 	if err := os.MkdirAll(g.outputDir, 0755); err != nil {
@@ -53,7 +54,7 @@ func (g *Generator) WriteYAML(name string, data interface{}) error {
 	return nil
 }
 
-// GetOutputDir gets the output directory
+// GetOutputDir returns the output directory used by the generator.
 func (g *Generator) GetOutputDir() string {
 	return g.outputDir
 }

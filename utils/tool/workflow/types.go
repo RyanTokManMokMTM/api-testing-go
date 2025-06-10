@@ -1,20 +1,23 @@
+// Package workflow defines types and constants for workflow generation and test case management.
 package workflow
 
 import "github.com/RyanTokManMokMTM/api-testing-go/config/types"
 
-// WorkflowType defines the type of workflow
-type WorkflowType string
+// Type defines the type of workflow
+type Type string
+
+// CheckType defines the type of response check
 type CheckType string
 
 const (
 	// TypeCoupon represents a coupon workflow
-	TypeCoupon WorkflowType = "coupon_workflow"
+	TypeCoupon Type = "coupon_workflow"
 	// TypeSubscription represents a subscription workflow
-	TypeSubscription WorkflowType = "subscription_workflow"
+	TypeSubscription Type = "subscription_workflow"
 	// TypeOrder represents an order workflow
-	TypeOrder WorkflowType = "order_workflow"
+	TypeOrder Type = "order_workflow"
 	// TypeGeneral represents a general workflow
-	TypeGeneral WorkflowType = "general_workflow"
+	TypeGeneral Type = "general_workflow"
 )
 
 const (
@@ -38,7 +41,7 @@ const (
 )
 
 // GetWorkflowType returns the workflow type based on the name
-func GetWorkflowType(name string) WorkflowType {
+func GetWorkflowType(name string) Type {
 	switch name {
 	case string(TypeCoupon):
 		return TypeCoupon
@@ -110,6 +113,7 @@ type InitVar struct {
 	Field    string
 }
 
+// FieldType represents the type of a field in API responses.
 type FieldType string
 
 const (
@@ -121,6 +125,7 @@ const (
 	BooleanType FieldType = "boolean"
 )
 
+// ToConfigTypeField converts the workflow FieldType to a config FieldType.
 func (ft FieldType) ToConfigTypeField() types.FieldType {
 	return types.FieldType(ft)
 }

@@ -1,3 +1,4 @@
+// Package generator defines types for representing test cases, steps, and response checks for workflow generation.
 package generator
 
 // TestCase represents a test case

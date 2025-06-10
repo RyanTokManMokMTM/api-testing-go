@@ -1,3 +1,4 @@
+// Package workflow provides workflow generators and utilities for creating API test workflows.
 package workflow
 
 import (
@@ -11,6 +12,8 @@ import (
 
 // GenerateOption defines a function type for generation options
 type GenerateOption func(*config.APITest)
+
+// ScenarioOption defines a function type for modifying a Scenario during generation.
 type ScenarioOption func(*config.Scenario)
 
 // TestCaseWithOptions represents a test case with its options
@@ -61,14 +64,14 @@ func WithScenarioHook(hook Hook) ScenarioOption {
 	}
 }
 
-// Generator is a workflow generator used to generate workflow-related test cases
-type WorkflowGenerator struct {
+// Generator is a workflow generator used to generate workflow-related test cases.
+type Generator struct {
 	*generator.Generator
 	logger *log.Logger
 }
 
 // generateWorkflow generates a workflow
-func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
+func (g *Generator) generateWorkflow(step TestStep) config.Workflow {
 	workflow := config.Workflow{
 		Step: step.Name,
 		Request: config.Request{
@@ -129,16 +132,16 @@ func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
 	return workflow
 }
 
-// NewGenerator creates a new workflow generator
-func NewWorkflowGenerator(outputDir string) *WorkflowGenerator {
-	return &WorkflowGenerator{
+// NewGenerator creates a new workflow generator with the specified output directory.
+func NewGenerator(outputDir string) *Generator {
+	return &Generator{
 		Generator: generator.NewGenerator(outputDir),
 		logger:    log.New(os.Stdout, "[WorkflowGenerator] ", log.LstdFlags),
 	}
 }
 
 // generateScenario generates a test scenario from a test case and applies options
-func (g *WorkflowGenerator) generateScenario(tc TestCase, opts ...ScenarioOption) config.Scenario {
+func (g *Generator) generateScenario(tc TestCase, opts ...ScenarioOption) config.Scenario {
 	scenario := config.Scenario{
 		Name:      tc.Name,
 		Skip:      false,
@@ -157,8 +160,8 @@ func (g *WorkflowGenerator) generateScenario(tc TestCase, opts ...ScenarioOption
 	return scenario
 }
 
-// GenerateTestSuite generates a test suite from a list of test cases
-func (g *WorkflowGenerator) GenerateTestSuite(name string, testCases []TestCaseWithOptions, opts ...GenerateOption) error {
+// GenerateTestSuite generates a test suite from a list of test cases and options.
+func (g *Generator) GenerateTestSuite(name string, testCases []TestCaseWithOptions, opts ...GenerateOption) error {
 	apiTest := config.APITest{
 		Name:          name,
 		Host:          "localhost",
@@ -184,8 +187,8 @@ func (g *WorkflowGenerator) GenerateTestSuite(name string, testCases []TestCaseW
 	return g.WriteYAML(name, suite)
 }
 
-// GenerateAllWorkflows generates all workflow test cases
-func (g *WorkflowGenerator) GenerateAllWorkflows() error {
+// GenerateAllWorkflows generates all workflow test cases.
+func (g *Generator) GenerateAllWorkflows() error {
 	workflows := []struct {
 		name     string
 		generate func() []TestCaseWithOptions
@@ -215,7 +218,7 @@ func (g *WorkflowGenerator) GenerateAllWorkflows() error {
 }
 
 // GenerateExampleWorkflow generates Spanish data generation API workflow test cases
-func (g *WorkflowGenerator) GenerateExampleWorkflow() []TestCaseWithOptions {
+func (g *Generator) GenerateExampleWorkflow() []TestCaseWithOptions {
 	return []TestCaseWithOptions{
 		{
 			TestCase: TestCase{

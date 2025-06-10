@@ -1,3 +1,4 @@
+// Package config provides configuration generators for shared test configurations.
 package config
 
 import (
@@ -10,26 +11,26 @@ const (
 	DefaultOutputDir = "config/etc/api-test/config"
 )
 
-// ConfigGenerator is a configuration generator used to generate shared configurations
-type ConfigGenerator struct {
+// Generator is a configuration generator used to generate shared configurations.
+type Generator struct {
 	*generator.Generator
 }
 
-// NewConfigGenerator creates a new configuration generator
-func NewConfigGenerator(outputDir string) *ConfigGenerator {
+// NewGenerator creates a new configuration generator with the specified output directory.
+func NewGenerator(outputDir string) *Generator {
 	if outputDir == "" {
 		outputDir = DefaultOutputDir
 	}
-	return &ConfigGenerator{
+	return &Generator{
 		Generator: generator.NewGenerator(outputDir),
 	}
 }
 
-// GenerateConfig generates configuration
-func (g *ConfigGenerator) GenerateConfig() error {
+// GenerateConfig generates the configuration file using the provided values.
+func (g *Generator) GenerateConfig() error {
 	// Create configuration structure
 	cfg := config.Config{
-		ConfigValues: []config.ConfigValue{
+		ConfigValues: []config.Value{
 			// Merchant and business related IDs
 			{
 				Name:  "mid",

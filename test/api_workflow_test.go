@@ -130,7 +130,7 @@ func loadConfigMap() (map[string]interface{}, error) {
 }
 
 // processConfigValue processes a single config value, executing commands if needed
-func processConfigValue(cfg config.ConfigValue) (interface{}, error) {
+func processConfigValue(cfg config.Value) (interface{}, error) {
 	if cfg.Command != "" {
 		// Execute command and get output
 		output, err := exec.Command("bash", "-c", cfg.Command).Output()

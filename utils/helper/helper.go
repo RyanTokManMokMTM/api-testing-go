@@ -1,3 +1,4 @@
+// Package apihelper provides utility functions for API testing operations including YAML loading, response field extraction, and type conversion.
 package apihelper
 
 import (
@@ -13,6 +14,7 @@ import (
 	apierr "github.com/RyanTokManMokMTM/api-testing-go/utils/error"
 )
 
+// LoadYamlData loads YAML data from a file into the provided data structure.
 func LoadYamlData[T any](path string, data *T) error {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
@@ -25,6 +27,7 @@ func LoadYamlData[T any](path string, data *T) error {
 	return nil
 }
 
+// GetRespFieldData extracts data from a response using a dot-notation field path.
 func GetRespFieldData(fromField string, resp any) (any, error) {
 	// MAKR: split the field into layers by .
 	// Example: data.data[0].id ->[data,data[0],id]
@@ -173,6 +176,7 @@ func getValue[T any](index int, list []T) (T, error) {
 	return list[index], nil
 }
 
+// ConvertStrToType converts a string value to the specified field type.
 func ConvertStrToType(str string, convertTo types.FieldType) (any, error) {
 	switch convertTo {
 	case types.NumberType: // convert to int64
