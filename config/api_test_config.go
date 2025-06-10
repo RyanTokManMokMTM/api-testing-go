@@ -82,7 +82,6 @@ type Request struct {
 
 // Response represents expected API response
 type Response struct {
-	// Code       string    `yaml:"code" validate:"required"`
 	StatusCode int       `yaml:"status_code" validate:"required"`
 	Body       BodyCheck `yaml:"body,omitempty"`
 }

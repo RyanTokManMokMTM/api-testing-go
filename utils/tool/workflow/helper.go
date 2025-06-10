@@ -35,10 +35,10 @@ func convertHeadersToString(headers map[string]string) string {
 // proper YAML template syntax.
 //
 // Parameters:
-//   - body: The request body data (can be any type that can be marshaled to JSON)
+//   - body: The request body data as map[string]interface{}
 //
 // Returns:
-//   - Empty string if body is nil or marshaling fails
+//   - "null" if body is nil
 //   - JSON string with template variables properly formatted
 //
 // Template Variable Handling:
@@ -55,7 +55,7 @@ func convertHeadersToString(headers map[string]string) string {
 //	}
 //	result := convertBodyToString(body)
 //	// result: {"user_id":{{.user_id}},"amount":100,"name":"{{.name}}"}
-func convertBodyToString(body interface{}) string {
+func convertBodyToString(body map[string]interface{}) string {
 	if body == nil {
 		return ""
 	}
@@ -127,4 +127,106 @@ func convertQueryToString(query map[string]string) string {
 	}
 	data, _ := json.Marshal(query)
 	return string(data)
+}
+
+// convertInitVars converts our InitVar type to config.InitVar
+// This function is used to transform the initialization variables from our internal format
+// to the configuration format used by the test runner.
+// Parameters:
+//   - vars: A slice of InitVar containing variable initialization information
+//
+// Returns:
+//   - A slice of config.InitVar with the same information in the config format
+//   - nil if the input slice is empty
+func convertInitVars(vars []InitVar) []config.InitVar {
+	if len(vars) == 0 {
+		return nil
+	}
+	result := make([]config.InitVar, len(vars))
+	for i, v := range vars {
+		result[i] = config.InitVar{
+			Name:     v.Name,     // The name of the variable to be initialized
+			FromStep: v.FromStep, // The step from which to get the value
+			Field:    v.Field,    // The field path to extract the value from
+		}
+	}
+	return result
+}
+
+// convertHook converts our Hook type to config.Hook
+// This function transforms the hook configuration from our internal format
+// to the configuration format used by the test runner.
+// A hook consists of before and after actions that are executed
+// before and after the main test workflow.
+// Parameters:
+//   - hook: A Hook struct containing before and after actions
+//
+// Returns:
+//   - A config.Hook with the same information in the config format
+func convertHook(hook Hook) config.Hook {
+	return config.Hook{
+		Before: convertHookActions(hook.Before), // Convert before hook actions
+		After:  convertHookActions(hook.After),  // Convert after hook actions
+	}
+}
+
+// convertHookActions converts our HookActions type to config.HookActions
+// This function transforms the hook actions from our internal format
+// to the configuration format used by the test runner.
+// Hook actions include initialization variables and workflows to be executed.
+// Parameters:
+//   - actions: A HookActions struct containing init vars and workflows
+//
+// Returns:
+//   - A config.HookActions with the same information in the config format
+func convertHookActions(actions HookActions) config.HookActions {
+	return config.HookActions{
+		// Convert initialization variables
+		InitVars: convertInitVars(actions.InitVars),
+		// Convert workflows using an anonymous function to handle nil case
+		Workflows: func() []config.Workflow {
+			if len(actions.Workflows) == 0 {
+				return nil
+			}
+			// Create a new slice to store converted workflows
+			result := make([]config.Workflow, len(actions.Workflows))
+			for i, wf := range actions.Workflows {
+				// Convert each workflow step
+				result[i] = config.Workflow{
+					Step: wf.Name,
+					// Convert request details
+					Request: config.Request{
+						Method:       wf.Method,                              // HTTP method (GET, POST, etc.)
+						URI:          wf.URI,                                 // API endpoint
+						Headers:      convertHeadersToString(wf.Headers),     // Convert headers to string format
+						Body:         convertBodyToString(wf.Body),           // Convert body to string format
+						Query:        convertQueryToString(wf.Query),         // Convert query parameters to string format
+						Vars:         convertVariables(wf.Variables),         // Convert variables
+						FromResponse: convertFromResponses(wf.FromResponses), // Convert from_response
+					},
+					// Convert expected response details
+					ExpectResponse: config.Response{
+						StatusCode: wf.ExpectedStatus, // Expected HTTP status code
+					},
+				}
+			}
+			return result
+		}(),
+	}
+}
+
+// convertFromResponses converts FromResponse slice to config.FromResponse slice
+func convertFromResponses(fromResponses []FromResponse) []config.FromResponse {
+	if fromResponses == nil {
+		return nil
+	}
+	result := make([]config.FromResponse, len(fromResponses))
+	for i, fr := range fromResponses {
+		result[i] = config.FromResponse{
+			Step:      fr.Step,
+			Name:      fr.Name,
+			FromField: fr.FromField,
+		}
+	}
+	return result
 }

@@ -10,7 +10,7 @@ import (
 
 var _ = BeforeSuite(func() {
 	// TODO: Setup you testing environment
-	// exmaple: Connect to db and setup router etc.
+	// example: Connect to db and setup router etc.
 })
 
 var _ = AfterSuite(func() {

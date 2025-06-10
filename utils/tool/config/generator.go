@@ -39,5 +39,5 @@ func (g *ConfigGenerator) GenerateConfig() error {
 	}
 
 	// Write configuration file
-	return g.Generator.WriteYAML("config", &cfg)
+	return g.WriteYAML("config", &cfg)
 }

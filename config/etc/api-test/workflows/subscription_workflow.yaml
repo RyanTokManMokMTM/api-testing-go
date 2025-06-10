@@ -1,0 +1,6 @@
+api_test:
+  host: localhost
+  network_enable: false
+  name: subscription_workflow
+  skip: true
+  scenarios: []

@@ -60,23 +60,13 @@ func TestConvertHeadersToString(t *testing.T) {
 func TestConvertBodyToString(t *testing.T) {
 	tests := []struct {
 		name     string
-		body     interface{}
+		body     map[string]interface{}
 		expected string
 	}{
 		{
 			name:     "nil body",
 			body:     nil,
 			expected: "",
-		},
-		{
-			name:     "empty string body",
-			body:     "",
-			expected: `""`,
-		},
-		{
-			name:     "simple string body",
-			body:     "hello world",
-			expected: `"hello world"`,
 		},
 		{
 			name: "simple map body",
@@ -273,6 +263,579 @@ func TestConvertQueryToString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := convertQueryToString(tt.query)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestConvertInitVars(t *testing.T) {
+	tests := []struct {
+		name     string
+		vars     []InitVar
+		expected []config.InitVar
+	}{
+		{
+			name:     "empty init vars",
+			vars:     []InitVar{},
+			expected: nil,
+		},
+		{
+			name:     "nil init vars",
+			vars:     nil,
+			expected: nil,
+		},
+		{
+			name: "single init var",
+			vars: []InitVar{
+				{
+					Name:     "user_id",
+					FromStep: "create_user",
+					Field:    "data.id",
+				},
+			},
+			expected: []config.InitVar{
+				{
+					Name:     "user_id",
+					FromStep: "create_user",
+					Field:    "data.id",
+				},
+			},
+		},
+		{
+			name: "multiple init vars",
+			vars: []InitVar{
+				{
+					Name:     "user_id",
+					FromStep: "create_user",
+					Field:    "data.id",
+				},
+				{
+					Name:     "merchant_id",
+					FromStep: "create_merchant",
+					Field:    "merchant.id",
+				},
+				{
+					Name:     "api_key",
+					FromStep: "get_api_key",
+					Field:    "key",
+				},
+			},
+			expected: []config.InitVar{
+				{
+					Name:     "user_id",
+					FromStep: "create_user",
+					Field:    "data.id",
+				},
+				{
+					Name:     "merchant_id",
+					FromStep: "create_merchant",
+					Field:    "merchant.id",
+				},
+				{
+					Name:     "api_key",
+					FromStep: "get_api_key",
+					Field:    "key",
+				},
+			},
+		},
+		{
+			name: "init vars with special characters",
+			vars: []InitVar{
+				{
+					Name:     "user_id_v2",
+					FromStep: "create_user_v2",
+					Field:    "data.user.id",
+				},
+				{
+					Name:     "api_key_123",
+					FromStep: "get_api_key_v1",
+					Field:    "keys.primary",
+				},
+			},
+			expected: []config.InitVar{
+				{
+					Name:     "user_id_v2",
+					FromStep: "create_user_v2",
+					Field:    "data.user.id",
+				},
+				{
+					Name:     "api_key_123",
+					FromStep: "get_api_key_v1",
+					Field:    "keys.primary",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := convertInitVars(tt.vars)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestConvertHook(t *testing.T) {
+	tests := []struct {
+		name     string
+		hook     Hook
+		expected config.Hook
+	}{
+		{
+			name: "empty hook",
+			hook: Hook{
+				Before: HookActions{},
+				After:  HookActions{},
+			},
+			expected: config.Hook{
+				Before: config.HookActions{},
+				After:  config.HookActions{},
+			},
+		},
+		{
+			name: "hook with before actions only",
+			hook: Hook{
+				Before: HookActions{
+					InitVars: []InitVar{
+						{
+							Name:     "setup_var",
+							FromStep: "setup",
+							Field:    "data.value",
+						},
+					},
+					Workflows: []TestStep{
+						{
+							Name:   "setup_request",
+							Method: "POST",
+							URI:    "/setup",
+						},
+					},
+				},
+				After: HookActions{},
+			},
+			expected: config.Hook{
+				Before: config.HookActions{
+					InitVars: []config.InitVar{
+						{
+							Name:     "setup_var",
+							FromStep: "setup",
+							Field:    "data.value",
+						},
+					},
+					Workflows: []config.Workflow{
+						{
+							Step: "setup_request",
+							Request: config.Request{
+								Method: "POST",
+								URI:    "/setup",
+							},
+							ExpectResponse: config.Response{
+								StatusCode: 0,
+							},
+						},
+					},
+				},
+				After: config.HookActions{},
+			},
+		},
+		{
+			name: "hook with after actions only",
+			hook: Hook{
+				Before: HookActions{},
+				After: HookActions{
+					InitVars: []InitVar{
+						{
+							Name:     "cleanup_var",
+							FromStep: "cleanup",
+							Field:    "result.status",
+						},
+					},
+					Workflows: []TestStep{
+						{
+							Name:           "cleanup_request",
+							Method:         "DELETE",
+							URI:            "/cleanup",
+							ExpectedStatus: 204,
+						},
+					},
+				},
+			},
+			expected: config.Hook{
+				Before: config.HookActions{},
+				After: config.HookActions{
+					InitVars: []config.InitVar{
+						{
+							Name:     "cleanup_var",
+							FromStep: "cleanup",
+							Field:    "result.status",
+						},
+					},
+					Workflows: []config.Workflow{
+						{
+							Step: "cleanup_request",
+							Request: config.Request{
+								Method: "DELETE",
+								URI:    "/cleanup",
+							},
+							ExpectResponse: config.Response{
+								StatusCode: 204,
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "complete hook with both before and after",
+			hook: Hook{
+				Before: HookActions{
+					InitVars: []InitVar{
+						{
+							Name:     "user_id",
+							FromStep: "create_user",
+							Field:    "data.id",
+						},
+					},
+					Workflows: []TestStep{
+						{
+							Name:           "create_user",
+							Method:         "POST",
+							URI:            "/users",
+							ExpectedStatus: 201,
+						},
+					},
+				},
+				After: HookActions{
+					InitVars: []InitVar{
+						{
+							Name:     "cleanup_id",
+							FromStep: "cleanup",
+							Field:    "id",
+						},
+					},
+					Workflows: []TestStep{
+						{
+							Name:           "delete_user",
+							Method:         "DELETE",
+							URI:            "/users/{{.user_id}}",
+							ExpectedStatus: 204,
+						},
+					},
+				},
+			},
+			expected: config.Hook{
+				Before: config.HookActions{
+					InitVars: []config.InitVar{
+						{
+							Name:     "user_id",
+							FromStep: "create_user",
+							Field:    "data.id",
+						},
+					},
+					Workflows: []config.Workflow{
+						{
+							Step: "create_user",
+							Request: config.Request{
+								Method: "POST",
+								URI:    "/users",
+							},
+							ExpectResponse: config.Response{
+								StatusCode: 201,
+							},
+						},
+					},
+				},
+				After: config.HookActions{
+					InitVars: []config.InitVar{
+						{
+							Name:     "cleanup_id",
+							FromStep: "cleanup",
+							Field:    "id",
+						},
+					},
+					Workflows: []config.Workflow{
+						{
+							Step: "delete_user",
+							Request: config.Request{
+								Method: "DELETE",
+								URI:    "/users/{{.user_id}}",
+							},
+							ExpectResponse: config.Response{
+								StatusCode: 204,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := convertHook(tt.hook)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestConvertHookActions(t *testing.T) {
+	tests := []struct {
+		name     string
+		actions  HookActions
+		expected config.HookActions
+	}{
+		{
+			name: "empty hook actions",
+			actions: HookActions{
+				InitVars:  []InitVar{},
+				Workflows: []TestStep{},
+			},
+			expected: config.HookActions{
+				InitVars:  nil,
+				Workflows: nil,
+			},
+		},
+		{
+			name: "hook actions with init vars only",
+			actions: HookActions{
+				InitVars: []InitVar{
+					{
+						Name:     "test_var",
+						FromStep: "test_step",
+						Field:    "data.value",
+					},
+				},
+				Workflows: []TestStep{},
+			},
+			expected: config.HookActions{
+				InitVars: []config.InitVar{
+					{
+						Name:     "test_var",
+						FromStep: "test_step",
+						Field:    "data.value",
+					},
+				},
+				Workflows: nil,
+			},
+		},
+		{
+			name: "hook actions with workflows only",
+			actions: HookActions{
+				InitVars: []InitVar{},
+				Workflows: []TestStep{
+					{
+						Name:           "test_workflow",
+						Method:         "GET",
+						URI:            "/test",
+						ExpectedStatus: 200,
+					},
+				},
+			},
+			expected: config.HookActions{
+				InitVars: nil,
+				Workflows: []config.Workflow{
+					{
+						Step: "test_workflow",
+						Request: config.Request{
+							Method: "GET",
+							URI:    "/test",
+						},
+						ExpectResponse: config.Response{
+							StatusCode: 200,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "complete hook actions",
+			actions: HookActions{
+				InitVars: []InitVar{
+					{
+						Name:     "user_id",
+						FromStep: "create_user",
+						Field:    "data.id",
+					},
+					{
+						Name:     "api_key",
+						FromStep: "get_key",
+						Field:    "key",
+					},
+				},
+				Workflows: []TestStep{
+					{
+						Name:           "create_user",
+						Method:         "POST",
+						URI:            "/users",
+						Headers:        map[string]string{"Content-Type": "application/json"},
+						Body:           map[string]interface{}{"name": "test"},
+						Query:          map[string]string{"type": "user"},
+						Variables:      []string{"user_id"},
+						ExpectedStatus: 201,
+					},
+					{
+						Name:           "get_api_key",
+						Method:         "GET",
+						URI:            "/keys",
+						ExpectedStatus: 200,
+					},
+				},
+			},
+			expected: config.HookActions{
+				InitVars: []config.InitVar{
+					{
+						Name:     "user_id",
+						FromStep: "create_user",
+						Field:    "data.id",
+					},
+					{
+						Name:     "api_key",
+						FromStep: "get_key",
+						Field:    "key",
+					},
+				},
+				Workflows: []config.Workflow{
+					{
+						Step: "create_user",
+						Request: config.Request{
+							Method:  "POST",
+							URI:     "/users",
+							Headers: `{"Content-Type":"application/json"}`,
+							Body:    `{"name":"test"}`,
+							Query:   `{"type":"user"}`,
+							Vars: []config.Var{
+								{Name: "user_id"},
+							},
+						},
+						ExpectResponse: config.Response{
+							StatusCode: 201,
+						},
+					},
+					{
+						Step: "get_api_key",
+						Request: config.Request{
+							Method: "GET",
+							URI:    "/keys",
+						},
+						ExpectResponse: config.Response{
+							StatusCode: 200,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := convertHookActions(tt.actions)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestConvertFromResponses(t *testing.T) {
+	tests := []struct {
+		name          string
+		fromResponses []FromResponse
+		expected      []config.FromResponse
+	}{
+		{
+			name:          "empty from responses",
+			fromResponses: []FromResponse{},
+			expected:      []config.FromResponse{},
+		},
+		{
+			name:          "nil from responses",
+			fromResponses: nil,
+			expected:      nil,
+		},
+		{
+			name: "single from response",
+			fromResponses: []FromResponse{
+				{
+					Step:      "create_user",
+					Name:      "user_id",
+					FromField: "data.id",
+				},
+			},
+			expected: []config.FromResponse{
+				{
+					Step:      "create_user",
+					Name:      "user_id",
+					FromField: "data.id",
+				},
+			},
+		},
+		{
+			name: "multiple from responses",
+			fromResponses: []FromResponse{
+				{
+					Step:      "create_user",
+					Name:      "user_id",
+					FromField: "data.id",
+				},
+				{
+					Step:      "create_merchant",
+					Name:      "merchant_id",
+					FromField: "merchant.id",
+				},
+				{
+					Step:      "get_api_key",
+					Name:      "api_key",
+					FromField: "key",
+				},
+			},
+			expected: []config.FromResponse{
+				{
+					Step:      "create_user",
+					Name:      "user_id",
+					FromField: "data.id",
+				},
+				{
+					Step:      "create_merchant",
+					Name:      "merchant_id",
+					FromField: "merchant.id",
+				},
+				{
+					Step:      "get_api_key",
+					Name:      "api_key",
+					FromField: "key",
+				},
+			},
+		},
+		{
+			name: "from responses with special characters",
+			fromResponses: []FromResponse{
+				{
+					Step:      "create_user_v2",
+					Name:      "user_id_v2",
+					FromField: "data.user.id",
+				},
+				{
+					Step:      "get_api_key_v1",
+					Name:      "api_key_123",
+					FromField: "keys.primary",
+				},
+			},
+			expected: []config.FromResponse{
+				{
+					Step:      "create_user_v2",
+					Name:      "user_id_v2",
+					FromField: "data.user.id",
+				},
+				{
+					Step:      "get_api_key_v1",
+					Name:      "api_key_123",
+					FromField: "keys.primary",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := convertFromResponses(tt.fromResponses)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

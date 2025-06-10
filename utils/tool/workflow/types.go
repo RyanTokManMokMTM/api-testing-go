@@ -19,22 +19,22 @@ const (
 
 const (
 	// CheckTypeEquals represents equality check
-	CheckTypeEquals = "equals"
+	CheckTypeEquals CheckType = "equals"
 
 	// CheckTypeMatches represents regex match check
-	CheckTypeMatches = "matches"
+	CheckTypeMatches CheckType = "matches"
 
 	// CheckTypePresent represents field presence check
-	CheckTypePresent = "present"
+	CheckTypePresent CheckType = "present"
 
 	// CheckTypeNotPresent represents field absence check
-	CheckTypeNotPresent = "not_present"
+	CheckTypeNotPresent CheckType = "not_present"
 
 	// CheckTypeGreaterThan represents greater than comparison
-	CheckTypeGreaterThan = "greater_than"
+	CheckTypeGreaterThan CheckType = "greater_than"
 
 	// CheckTypeLessThan represents less than comparison
-	CheckTypeLessThan = "less_than"
+	CheckTypeLessThan CheckType = "less_than"
 )
 
 // GetWorkflowType returns the workflow type based on the name
@@ -62,15 +62,15 @@ type TestCase struct {
 
 // TestStep represents a test step
 type TestStep struct {
-	Name          string
-	Method        string
-	URI           string
-	Headers       map[string]string
-	Body          interface{}
-	Query         map[string]string
-	Variables     []string
-	FromResponses []FromResponse
-	// ExpectedCode   string
+	Name           string
+	Method         string
+	URI            string
+	Headers        map[string]string
+	Body           map[string]interface{}
+	Query          map[string]string
+	Variables      []string
+	FromResponses  []FromResponse
+	ExpectedCode   string
 	ExpectedStatus int
 	ResponseChecks []ResponseCheck
 }
@@ -86,7 +86,41 @@ type FromResponse struct {
 type ResponseCheck struct {
 	CheckType CheckType
 	Field     string
-	Type      types.FieldType
+	Type      FieldType
 	Value     interface{}
 	Regex     string
+}
+
+// Hook represents a hook configuration
+type Hook struct {
+	Before HookActions
+	After  HookActions
+}
+
+// HookActions represents actions to be performed before or after a test
+type HookActions struct {
+	InitVars  []InitVar
+	Workflows []TestStep
+}
+
+// InitVar represents a variable initialization
+type InitVar struct {
+	Name     string
+	FromStep string
+	Field    string
+}
+
+type FieldType string
+
+const (
+	// StringType represents a string field
+	StringType FieldType = "string"
+	// NumberType represents a numeric field
+	NumberType FieldType = "number"
+	// BooleanType represents a boolean field
+	BooleanType FieldType = "boolean"
+)
+
+func (ft FieldType) ToConfigTypeField() types.FieldType {
+	return types.FieldType(ft)
 }

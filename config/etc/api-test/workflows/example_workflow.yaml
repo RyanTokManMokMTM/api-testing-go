@@ -1,0 +1,17 @@
+api_test:
+  host: https://api.generadordni.es
+  network_enable: true
+  name: example_workflow
+  skip: false
+  scenarios:
+  - skip: false
+    name: Test Spanish Data Generation API Workflow
+    workflows:
+    - step: generate_person_profile
+      request:
+        method: GET
+        uri: /v2/profiles/person
+        headers: '{"Accept":"application/json"}'
+        query: '{"results":"1"}'
+      expect_response:
+        status_code: 200

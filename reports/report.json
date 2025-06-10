@@ -1,0 +1,409 @@
+[
+  {
+    "SuitePath": "/Users/jackson.tmm/Desktop/api-test-generator/test",
+    "SuiteDescription": "API Workflow Suite Test",
+    "SuiteLabels": [],
+    "SuiteSucceeded": false,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 1,
+      "SpecsThatWillRun": 1
+    },
+    "StartTime": "2025-06-10T23:54:13.528741+08:00",
+    "EndTime": "2025-06-10T23:54:14.495506+08:00",
+    "RunTime": 966779667,
+    "SuiteConfig": {
+      "RandomSeed": 1749570851,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": null,
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": true,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3598693467667,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": null,
+        "ContainerHierarchyLocations": null,
+        "ContainerHierarchyLabels": null,
+        "LeafNodeType": "BeforeSuite",
+        "LeafNodeLocation": {
+          "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_test_suite_test.go",
+          "LineNumber": 11
+        },
+        "LeafNodeLabels": null,
+        "LeafNodeText": "",
+        "State": "passed",
+        "StartTime": "2025-06-10T23:54:13.528886+08:00",
+        "EndTime": "2025-06-10T23:54:13.528951+08:00",
+        "RunTime": 64500,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0,
+        "SpecEvents": [
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_test_suite_test.go",
+              "LineNumber": 11
+            },
+            "TimelineLocation": {
+              "Order": 1,
+              "Time": "2025-06-10T23:54:13.528888+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "NodeType": "BeforeSuite"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_test_suite_test.go",
+              "LineNumber": 11
+            },
+            "TimelineLocation": {
+              "Order": 3,
+              "Time": "2025-06-10T23:54:13.52895+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "Duration": 62083,
+            "NodeType": "BeforeSuite"
+          }
+        ]
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "[ API TEST WORKFLOW ]",
+          "",
+          "\u003c API Test : example_workflow \u003e",
+          ""
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+            "LineNumber": 29
+          },
+          {
+            "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+            "LineNumber": 48
+          },
+          {
+            "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+            "LineNumber": 65
+          },
+          {
+            "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+            "LineNumber": 213
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+          "LineNumber": 85
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "\u003c Scenario : Test Spanish Data Generation API Workflow \u003e",
+        "State": "failed",
+        "StartTime": "2025-06-10T23:54:13.529033+08:00",
+        "EndTime": "2025-06-10T23:54:14.494608+08:00",
+        "RunTime": 965589750,
+        "ParallelProcess": 1,
+        "Failure": {
+          "Message": "\n\tError Trace:\tassert.go:259\n\t            \t\t\t\tassert.go:89\n\t            \t\t\t\tassert.go:78\n\t            \t\t\t\tapitest.go:1079\n\t            \t\t\t\tapitest.go:908\n\t            \t\t\t\tapitest.go:715\n\t            \t\t\t\tsub.go:403\n\t            \t\t\t\tsub.go:346\n\t            \t\t\t\tmain.go:78\n\t            \t\t\t\tapi_workflow_test.go:200\n\t            \t\t\t\tapi_workflow_test.go:86\n\t            \t\t\t\tnode.go:475\n\t            \t\t\t\tsuite.go:894\n\t            \t\t\t\tasm_arm64.s:1223\n\tError:      \tNot equal: \n\t            \texpected: 200\n\t            \tactual  : 429\n\tTest:       \t[ API TEST WORKFLOW ]  \u003c API Test : example_workflow \u003e  \u003c Scenario : Test Spanish Data Generation API Workflow \u003e\n\tMessages:   \tStatus code 429 not equal to 200\n\tName:       \tStep - generate_person_profile\n",
+          "Location": {
+            "FileName": "/Users/jackson.tmm/go/pkg/mod/github.com/steinfletcher/apitest@v1.6.0/assert.go",
+            "LineNumber": 105,
+            "FullStackTrace": "github.com/steinfletcher/apitest.DefaultVerifier.Fail({}, {0x105135970, 0x14000138120}, {0x1400019f650, 0x27}, {0x140001e71a0, 0x2, 0x2})\n\t/Users/jackson.tmm/go/pkg/mod/github.com/steinfletcher/apitest@v1.6.0/assert.go:105 +0x2cc\ngithub.com/steinfletcher/apitest.DefaultVerifier.Equal({}, {0x105135970, 0x14000138120}, {0x1048a3c80, 0x104ca74a0}, {0x1048a3c80, 0x14000193dc8}, {0x140001e71a0, 0x2, 0x2})\n\t/Users/jackson.tmm/go/pkg/mod/github.com/steinfletcher/apitest@v1.6.0/assert.go:78 +0x1d0\ngithub.com/steinfletcher/apitest.(*APITest).assertResponse(0x14000162640, 0x14000408090)\n\t/Users/jackson.tmm/go/pkg/mod/github.com/steinfletcher/apitest@v1.6.0/apitest.go:1079 +0x194\ngithub.com/steinfletcher/apitest.(*Response).runTest(0x14000179788?)\n\t/Users/jackson.tmm/go/pkg/mod/github.com/steinfletcher/apitest@v1.6.0/apitest.go:908 +0x2d8\ngithub.com/steinfletcher/apitest.(*Response).End(0x14000380000)\n\t/Users/jackson.tmm/go/pkg/mod/github.com/steinfletcher/apitest@v1.6.0/apitest.go:715 +0x108\ngithub.com/RyanTokManMokMTM/api-testing-go/api_test_runner.(*APITestRunner).apiTestWithGetMethod(0x1400012c000?, {0x1051358b0, 0x14000138120}, 0x104769758?, 0x14000116370, 0xc8)\n\t/Users/jackson.tmm/Desktop/api-test-generator/api_test_runner/sub.go:403 +0x35c\ngithub.com/RyanTokManMokMTM/api-testing-go/api_test_runner.(*APITestRunner).apiTestWithMethod(0x1400013e010, {0x1051358b0, 0x14000138120}, 0x14000162640, {0x14000193c40?, 0x0?}, 0x14000116370, 0xc8)\n\t/Users/jackson.tmm/Desktop/api-test-generator/api_test_runner/sub.go:346 +0x8c\ngithub.com/RyanTokManMokMTM/api-testing-go/api_test_runner.(*APITestRunner).Start(_, {_, _}, _, {{0x140001ae780, 0x17}, {{0x0, 0x0, 0x0}, {0x0, ...}, ...}, ...}, ...)\n\t/Users/jackson.tmm/Desktop/api-test-generator/api_test_runner/main.go:78 +0x5dc\ngithub.com/RyanTokManMokMTM/api-testing-go/test_test.runTest({0x1051358b0, 0x14000138120}, 0x1400013e010, 0x140001cc580, {0x14000211a40, 0x1, 0x0?}, 0x140001a24d8)\n\t/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go:200 +0xec\ngithub.com/RyanTokManMokMTM/api-testing-go/test_test.init.func3.3.3.3()\n\t/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go:86 +0x48"
+          },
+          "TimelineLocation": {
+            "Order": 14,
+            "Time": "2025-06-10T23:54:14.494532+08:00"
+          },
+          "FailureNodeContext": "leaf-node",
+          "FailureNodeType": "It",
+          "FailureNodeLocation": {
+            "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+            "LineNumber": 85
+          },
+          "ProgressReport": {
+            "LeafNodeLocation": {},
+            "SpecStartTime": "0001-01-01T00:00:00Z",
+            "CurrentNodeLocation": {},
+            "CurrentNodeStartTime": "0001-01-01T00:00:00Z",
+            "CurrentStepLocation": {},
+            "CurrentStepStartTime": "0001-01-01T00:00:00Z",
+            "TimelineLocation": {
+              "Time": "0001-01-01T00:00:00Z"
+            }
+          }
+        },
+        "NumAttempts": 1,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0,
+        "SpecEvents": [
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 36
+            },
+            "TimelineLocation": {
+              "Order": 4,
+              "Time": "2025-06-10T23:54:13.529041+08:00"
+            },
+            "Message": "[ API TEST WORKFLOW ]",
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 36
+            },
+            "TimelineLocation": {
+              "Order": 6,
+              "Time": "2025-06-10T23:54:13.529206+08:00"
+            },
+            "Message": "[ API TEST WORKFLOW ]",
+            "Duration": 164500,
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 49
+            },
+            "TimelineLocation": {
+              "Order": 7,
+              "Time": "2025-06-10T23:54:13.529207+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 49
+            },
+            "TimelineLocation": {
+              "Order": 9,
+              "Time": "2025-06-10T23:54:13.529236+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "Duration": 29042,
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 67
+            },
+            "TimelineLocation": {
+              "Order": 10,
+              "Time": "2025-06-10T23:54:13.529237+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 67
+            },
+            "TimelineLocation": {
+              "Order": 12,
+              "Time": "2025-06-10T23:54:13.529249+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "Duration": 12083,
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 85
+            },
+            "TimelineLocation": {
+              "Order": 13,
+              "Time": "2025-06-10T23:54:13.52925+08:00"
+            },
+            "Message": "\u003c Scenario : Test Spanish Data Generation API Workflow \u003e",
+            "NodeType": "It"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 85
+            },
+            "TimelineLocation": {
+              "Order": 15,
+              "Time": "2025-06-10T23:54:14.494541+08:00"
+            },
+            "Message": "\u003c Scenario : Test Spanish Data Generation API Workflow \u003e",
+            "Duration": 965305708,
+            "NodeType": "It"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 74
+            },
+            "TimelineLocation": {
+              "Order": 16,
+              "Time": "2025-06-10T23:54:14.494554+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "NodeType": "AfterEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 74
+            },
+            "TimelineLocation": {
+              "Order": 18,
+              "Time": "2025-06-10T23:54:14.494583+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "Duration": 29042,
+            "NodeType": "AfterEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 56
+            },
+            "TimelineLocation": {
+              "Order": 19,
+              "Time": "2025-06-10T23:54:14.494583+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "NodeType": "AfterEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 56
+            },
+            "TimelineLocation": {
+              "Order": 21,
+              "Time": "2025-06-10T23:54:14.494593+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "Duration": 9583,
+            "NodeType": "AfterEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 41
+            },
+            "TimelineLocation": {
+              "Order": 22,
+              "Time": "2025-06-10T23:54:14.494594+08:00"
+            },
+            "Message": "[ API TEST WORKFLOW ]",
+            "NodeType": "AfterEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_workflow_test.go",
+              "LineNumber": 41
+            },
+            "TimelineLocation": {
+              "Order": 24,
+              "Time": "2025-06-10T23:54:14.494604+08:00"
+            },
+            "Message": "[ API TEST WORKFLOW ]",
+            "Duration": 10166,
+            "NodeType": "AfterEach"
+          }
+        ]
+      },
+      {
+        "ContainerHierarchyTexts": null,
+        "ContainerHierarchyLocations": null,
+        "ContainerHierarchyLabels": null,
+        "LeafNodeType": "AfterSuite",
+        "LeafNodeLocation": {
+          "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_test_suite_test.go",
+          "LineNumber": 16
+        },
+        "LeafNodeLabels": null,
+        "LeafNodeText": "",
+        "State": "passed",
+        "StartTime": "2025-06-10T23:54:14.495468+08:00",
+        "EndTime": "2025-06-10T23:54:14.4955+08:00",
+        "RunTime": 32000,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0,
+        "SpecEvents": [
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_test_suite_test.go",
+              "LineNumber": 16
+            },
+            "TimelineLocation": {
+              "Order": 25,
+              "Time": "2025-06-10T23:54:14.495469+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "NodeType": "AfterSuite"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/jackson.tmm/Desktop/api-test-generator/test/api_test_suite_test.go",
+              "LineNumber": 16
+            },
+            "TimelineLocation": {
+              "Order": 27,
+              "Time": "2025-06-10T23:54:14.495499+08:00"
+            },
+            "Message": "TOP-LEVEL",
+            "Duration": 29959,
+            "NodeType": "AfterSuite"
+          }
+        ]
+      }
+    ]
+  }
+]

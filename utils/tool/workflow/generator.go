@@ -2,6 +2,8 @@ package workflow
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/RyanTokManMokMTM/api-testing-go/config"
 	"github.com/RyanTokManMokMTM/api-testing-go/utils/tool/generator"
@@ -9,6 +11,13 @@ import (
 
 // GenerateOption defines a function type for generation options
 type GenerateOption func(*config.APITest)
+type ScenarioOption func(*config.Scenario)
+
+// TestCaseWithOptions represents a test case with its options
+type TestCaseWithOptions struct {
+	TestCase TestCase
+	Options  []ScenarioOption
+}
 
 // WithHost sets the Host option
 func WithHost(host string) GenerateOption {
@@ -32,37 +41,30 @@ func WithSkip(skip bool) GenerateOption {
 }
 
 // WithGlobalHook sets the global hook
-func WithGlobalHook(hook config.Hook) GenerateOption {
+func WithGlobalHook(hook Hook) GenerateOption {
 	return func(test *config.APITest) {
-		test.GlobalHook = hook
+		test.GlobalHook = convertHook(hook)
+	}
+}
+
+// WithSkipScenario sets the Skip Scenario option
+func WithSkipScenario(skip bool) ScenarioOption {
+	return func(scenario *config.Scenario) {
+		scenario.Skip = skip
+	}
+}
+
+// WithScenarioHook sets the scenario with hook opts
+func WithScenarioHook(hook Hook) ScenarioOption {
+	return func(scenario *config.Scenario) {
+		scenario.Hook = convertHook(hook)
 	}
 }
 
 // Generator is a workflow generator used to generate workflow-related test cases
 type WorkflowGenerator struct {
 	*generator.Generator
-}
-
-// NewGenerator creates a new workflow generator
-func NewWorkflowGenerator(outputDir string) *WorkflowGenerator {
-	return &WorkflowGenerator{
-		Generator: generator.NewGenerator(outputDir),
-	}
-}
-
-// generateScenario generates a test scenario
-func (g *WorkflowGenerator) generateScenario(tc TestCase) config.Scenario {
-	scenario := config.Scenario{
-		Name:      tc.Name,
-		Skip:      false,
-		Workflows: make([]config.Workflow, len(tc.Steps)),
-	}
-
-	for i, step := range tc.Steps {
-		scenario.Workflows[i] = g.generateWorkflow(step)
-	}
-
-	return scenario
+	logger *log.Logger
 }
 
 // generateWorkflow generates a workflow
@@ -70,40 +72,29 @@ func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
 	workflow := config.Workflow{
 		Step: step.Name,
 		Request: config.Request{
-			Method:  step.Method,
-			URI:     step.URI,
-			Headers: convertHeadersToString(step.Headers),
-			Body:    convertBodyToString(step.Body),
-			Vars:    convertVariables(step.Variables),
-			Query:   convertQueryToString(step.Query),
+			Method:       step.Method,
+			URI:          step.URI,
+			Headers:      convertHeadersToString(step.Headers),
+			Body:         convertBodyToString(step.Body),
+			Query:        convertQueryToString(step.Query),
+			Vars:         convertVariables(step.Variables),
+			FromResponse: convertFromResponses(step.FromResponses),
 		},
 		ExpectResponse: config.Response{
-			// Code:       step.ExpectedCode,
 			StatusCode: step.ExpectedStatus,
 			Body:       config.BodyCheck{},
 		},
 	}
 
-	// Add FromResponse if any
-	if len(step.FromResponses) > 0 {
-		workflow.Request.FromResponse = make([]config.FromResponse, len(step.FromResponses))
-		for i, fr := range step.FromResponses {
-			workflow.Request.FromResponse[i] = config.FromResponse{
-				Step:      fr.Step,
-				Name:      fr.Name,
-				FromField: fr.FromField,
-			}
-		}
-	}
-
 	// Add response checks
 	for _, check := range step.ResponseChecks {
-		switch check.Type {
+
+		switch check.CheckType {
 		case CheckTypeEquals:
 			workflow.ExpectResponse.Body.Equals = append(workflow.ExpectResponse.Body.Equals, config.EqualsCheck{
 				Field: check.Field,
 				Value: check.Value,
-				Type:  check.Type,
+				Type:  check.Type.ToConfigTypeField(),
 			})
 		case CheckTypeMatches:
 			workflow.ExpectResponse.Body.Matches = append(workflow.ExpectResponse.Body.Matches, config.MatchesCheck{
@@ -138,9 +129,36 @@ func (g *WorkflowGenerator) generateWorkflow(step TestStep) config.Workflow {
 	return workflow
 }
 
-// GenerateTestSuite generates a test suite
-func (g *WorkflowGenerator) GenerateTestSuite(name string, testCases []TestCase, opts ...GenerateOption) error {
-	// Create new APITest configuration
+// NewGenerator creates a new workflow generator
+func NewWorkflowGenerator(outputDir string) *WorkflowGenerator {
+	return &WorkflowGenerator{
+		Generator: generator.NewGenerator(outputDir),
+		logger:    log.New(os.Stdout, "[WorkflowGenerator] ", log.LstdFlags),
+	}
+}
+
+// generateScenario generates a test scenario from a test case and applies options
+func (g *WorkflowGenerator) generateScenario(tc TestCase, opts ...ScenarioOption) config.Scenario {
+	scenario := config.Scenario{
+		Name:      tc.Name,
+		Skip:      false,
+		Workflows: make([]config.Workflow, len(tc.Steps)),
+	}
+
+	// Apply all options
+	for _, opt := range opts {
+		opt(&scenario)
+	}
+
+	for i, step := range tc.Steps {
+		scenario.Workflows[i] = g.generateWorkflow(step)
+	}
+
+	return scenario
+}
+
+// GenerateTestSuite generates a test suite from a list of test cases
+func (g *WorkflowGenerator) GenerateTestSuite(name string, testCases []TestCaseWithOptions, opts ...GenerateOption) error {
 	apiTest := config.APITest{
 		Name:          name,
 		Host:          "localhost",
@@ -153,68 +171,69 @@ func (g *WorkflowGenerator) GenerateTestSuite(name string, testCases []TestCase,
 		opt(&apiTest)
 	}
 
-	// Build complete APITesting structure
 	suite := &config.APITesting{
 		APITest: apiTest,
 	}
 
 	// Generate test scenarios
 	for _, tc := range testCases {
-		scenario := g.generateScenario(tc)
+		scenario := g.generateScenario(tc.TestCase, tc.Options...)
 		suite.APITest.Scenarios = append(suite.APITest.Scenarios, scenario)
 	}
 
-	return g.Generator.WriteYAML(name, suite)
+	return g.WriteYAML(name, suite)
 }
 
 // GenerateAllWorkflows generates all workflow test cases
 func (g *WorkflowGenerator) GenerateAllWorkflows() error {
 	workflows := []struct {
 		name     string
-		generate func() []TestCase
+		generate func() []TestCaseWithOptions
 		opts     []GenerateOption
 	}{
 		{
-			name:     "simplified_config_workflow",
-			generate: g.GenerateGeneralWorkflow,
+			name:     "spanish_data_workflow",
+			generate: g.GenerateExampleWorkflow,
 			opts: []GenerateOption{
-				WithHost("https://fakerapi.it"),
-				WithNetworkEnable(true),
 				WithSkip(false),
+				WithNetworkEnable(true),
+				WithHost("api.generadordni.es"),
 			},
 		},
 	}
 
 	for _, wf := range workflows {
-		fmt.Printf("Generating %s...\n", wf.name)
+		g.logger.Printf("Generating %s...", wf.name)
 		testCases := wf.generate()
 		if err := g.GenerateTestSuite(wf.name, testCases, wf.opts...); err != nil {
-			return fmt.Errorf("failed to generate %s: %v", wf.name, err)
+			return fmt.Errorf("failed to generate %s: %w", wf.name, err)
 		}
+		g.logger.Printf("Successfully generated %s", wf.name)
 	}
 
 	return nil
 }
 
-// GenerateGeneralWorkflow generates general workflow test cases
-func (g *WorkflowGenerator) GenerateGeneralWorkflow() []TestCase {
-	return []TestCase{
+// GenerateExampleWorkflow generates Spanish data generation API workflow test cases
+func (g *WorkflowGenerator) GenerateExampleWorkflow() []TestCaseWithOptions {
+	return []TestCaseWithOptions{
 		{
-			Name:        "simplified_config_workflow",
-			Description: "Simplified workflow demonstrating config variable usage with Faker API",
-			Steps: []TestStep{
-				{
-					Name:   "get_user_data",
-					Method: "GET",
-					URI:    "/api/v2/persons?_quantity=1&_locale=en_US",
-					Headers: map[string]string{
-						"Content-Type":  "application/json",
-						"X-Merchant-ID": "{{.mid}}",
+			TestCase: TestCase{
+				Name:        "Spanish Person Profile Generation",
+				Description: "Generate Spanish person profiles using generadordni.es API",
+				Steps: []TestStep{
+					{
+						Name:   "Generate Person Profile",
+						Method: "GET",
+						URI:    "/v2/profiles/person",
+						Headers: map[string]string{
+							"Accept": "application/json",
+						},
+						Query: map[string]string{
+							"results": "1",
+						},
+						ExpectedStatus: 200,
 					},
-					Variables: []string{
-						"mid",
-					},
-					ExpectedStatus: 200,
 				},
 			},
 		},
